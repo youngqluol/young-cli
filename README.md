@@ -1,2 +1,2 @@
 # young-cli
-TODO: a cli to easily create vue project building with webpack5 
+A cli tool to easily create vue project using webpack5 to build.
