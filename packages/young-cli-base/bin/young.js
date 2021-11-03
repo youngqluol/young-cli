@@ -14,7 +14,7 @@ program
 
 program
   .command('add <plugin-name>')
-  .description('add plugin to a exsting project')
+  .description('install a plugin and invoke its generator in an already created project')
   .action((plugin) => {
     console.log('young', plugin)
   })
@@ -22,8 +22,7 @@ program
 program.on('command:*', ([cmd]) => {
   program.outputHelp()
   console.log()
-  console.log(chalk.red('red'))
-  console.log(` ` + chalk.red(`unknown command: ${chalk.yellow(cmd)}.`))
+  console.log(` ` + chalk.red(`unknown command: ${chalk.yellow(cmd)}`))
   process.exit(1)
 })
 
