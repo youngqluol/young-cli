@@ -3,8 +3,8 @@ const Module = require('module')
 const path = require('path')
 const fs = require('fs')
 
-const readPkg = require('read-pkg')
 const chalk = require('chalk')
+const readPkg = require('read-pkg')
 const readline = require('readline')
 
 // env
@@ -41,6 +41,8 @@ exports.exit = function (code) {
 }
 
 // logger
+exports.chalk = chalk
+
 exports.log = function (...args) {
   console.log(...args)
 }
@@ -63,6 +65,19 @@ exports.clearConsole = (title) => {
       console.log(title)
     }
   }
+}
+
+exports.boxenConsole = (
+  text,
+  options = {
+    align: 'center',
+    borderColor: 'green',
+    padding: 1,
+    margin: 1,
+    borderStyle: 'double',
+  },
+) => {
+  console.log(require('boxen')(text, options))
 }
 
 // module
@@ -144,18 +159,21 @@ exports.resolvePkg = function (context) {
 
 // fetch
 exports.request = {
-  get (url, opts) {
+  get(url, opts) {
     // lazy require
     const fetch = require('node-fetch')
     const reqOpts = {
       method: 'GET',
       timeout: 30000,
-      ...opts
+      ...opts,
     }
 
-    return fetch(url, reqOpts).then(result => result.json())
-  }
+    return fetch(url, reqOpts).then((result) => result.json())
+  },
 }
 
 // spinner
 exports.spinner = require('ora')
+
+// execa
+exports.execa = require('execa')
