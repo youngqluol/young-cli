@@ -1,17 +1,15 @@
 const path = require('path')
 const inquirer = require('inquirer')
-const EventEmitter = require('events')
 const Generator = require('./Generator')
 const sortObject = require('./util/sortObject')
 const PackageManager = require('./util/ProjectPackageManager')
-const { clearConsole } = require('./util/clearConsole')
 const PromptModuleAPI = require('./PromptModuleAPI')
 const writeFileTree = require('./util/writeFileTree')
 const { formatFeatures } = require('./util/features')
+const { getVersions } = require('./util/getVersions')
 const loadLocalPreset = require('./util/loadLocalPreset')
 const loadRemotePreset = require('./util/loadRemotePreset')
 const generateReadme = require('./util/generateReadme')
-const { resolvePkg, isOfficialPlugin } = require('@vue/cli-shared-utils')
 
 const {
   defaults,
@@ -29,15 +27,15 @@ const {
   error,
   hasYarn,
   exit,
-  loadModule
+  loadModule,
+  resolvePkg,
+  clearConsole,
 } = require('young-common-utils')
 
 const isManualMode = (answers) => answers.preset === '__manual__'
 
-module.exports = class Creator extends EventEmitter {
+module.exports = class Creator {
   constructor(name, context, promptModules) {
-    super()
-
     this.name = name
     this.context = context
     const { presetPrompt, featurePrompt } = this.resolveIntroPrompts()
@@ -50,14 +48,12 @@ module.exports = class Creator extends EventEmitter {
     this.afterInvokeCbs = []
     this.afterAnyInvokeCbs = []
 
-    this.run = this.run.bind(this)
-
     const promptAPI = new PromptModuleAPI(this)
     promptModules.forEach((m) => m(promptAPI))
   }
 
   async create() {
-    const { run, name, context, afterInvokeCbs, afterAnyInvokeCbs } = this
+    const { name, context, afterInvokeCbs, afterAnyInvokeCbs } = this
 
     const preset = await this.promptAndResolvePreset()
 
@@ -69,30 +65,19 @@ module.exports = class Creator extends EventEmitter {
       preset,
     )
 
-    // legacy support for router
-    if (preset.router) {
-      preset.plugins['young-cli-plugin-router'] = {}
-
-      if (preset.routerHistoryMode) {
-        preset.plugins['young-cli-plugin-router'].historyMode = true
-      }
-    }
-
-    // legacy support for vuex
-    if (preset.vuex) {
-      preset.plugins['young-cli-plugin-vuex'] = {}
-    }
-
     const packageManager =
       loadOptions().packageManager || (hasYarn() ? 'yarn' : null) || 'npm'
 
-    await clearConsole()
+    clearConsole()
     const pm = new PackageManager({
       context,
       forcePackageManager: packageManager,
     })
 
     log(`✨  Creating project in ${chalk.yellow(context)}.`)
+
+    // get latest CLI plugin version
+    const { latestMinor } = await getVersions()
 
     // generate package.json with plugin dependencies
     const pkg = {
@@ -107,7 +92,7 @@ module.exports = class Creator extends EventEmitter {
       let { version } = preset.plugins[dep]
 
       if (!version) {
-        version = '~1.0.0'
+        version = `~${latestMinor}`
       }
 
       pkg.devDependencies[dep] = version
@@ -180,17 +165,10 @@ module.exports = class Creator extends EventEmitter {
     generator.printExitLogs()
   }
 
-  run(command, args) {
-    if (!args) {
-      ;[command, ...args] = command.split(/\s+/)
-    }
-    return execa(command, args, { cwd: this.context })
-  }
-
   async promptAndResolvePreset(answers = null) {
     // prompt
     if (!answers) {
-      await clearConsole(true)
+      clearConsole(true)
       answers = await inquirer.prompt(this.resolveFinalPrompts())
     }
 
@@ -315,8 +293,6 @@ module.exports = class Creator extends EventEmitter {
       let displayName = name
       if (name === 'default') {
         displayName = 'Default'
-      } else if (name === '__default_vue_3__') {
-        displayName = 'Default (Vue 3)'
       }
 
       return {
