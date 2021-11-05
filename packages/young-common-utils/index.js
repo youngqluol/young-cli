@@ -176,4 +176,14 @@ exports.request = {
 exports.spinner = require('ora')
 
 // execa
-exports.execa = require('execa')
+const execa = (exports.execa = require('execa'))
+
+exports.runCommand = (command, args, cwd) => {
+  if (!args) {
+    const [_command, ..._args] = command.split(/\s+/)
+  }
+  return execa(_command, args || _args, { cwd })
+}
+
+// semver
+exports.semver = require('semver')
