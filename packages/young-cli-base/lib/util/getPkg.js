@@ -25,8 +25,5 @@ function getPackageJson (projectPath) {
 
 module.exports = function getPkg (context) {
   const pkg = getPackageJson(context)
-  if (pkg.vuePlugins && pkg.vuePlugins.resolveFrom) {
-    return getPackageJson(path.resolve(context, pkg.vuePlugins.resolveFrom))
-  }
   return pkg
 }
