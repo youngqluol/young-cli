@@ -23,6 +23,17 @@ exports.hasYarn = () => {
   }
 }
 
+exports.hasProjectYarn = (cwd) => {
+  const lockFile = path.join(cwd, 'yarn.lock')
+  const result = fs.existsSync(lockFile)
+  return checkYarn(result)
+}
+
+function checkYarn (result) {
+  if (result && !exports.hasYarn()) throw new Error(`The project seems to require yarn but it's not installed.`)
+  return result
+}
+
 exports.hasGit = () => {
   if (_hasGit != null) {
     return _hasGit
@@ -33,6 +44,17 @@ exports.hasGit = () => {
   } catch (e) {
     return (_hasGit = false)
   }
+}
+
+exports.hasProjectGit = (cwd) => {
+  let result
+  try {
+    execSync('git status', { stdio: 'ignore', cwd })
+    result = true
+  } catch (e) {
+    result = false
+  }
+  return result
 }
 
 // exit
@@ -187,3 +209,8 @@ exports.runCommand = (command, args, cwd) => {
 
 // semver
 exports.semver = require('semver')
+
+// plugin
+const pluginRE = /young-cli-plugin-/
+
+exports.isPlugin = id => pluginRE.test(id)

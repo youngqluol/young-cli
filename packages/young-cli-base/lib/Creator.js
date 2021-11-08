@@ -6,7 +6,7 @@ const PackageManager = require('./util/ProjectPackageManager')
 const PromptModuleAPI = require('./PromptModuleAPI')
 const writeFileTree = require('./util/writeFileTree')
 const { formatFeatures } = require('./util/features')
-const { getVersions } = require('./util/getVersions')
+const getVersions = require('./util/getVersions')
 const loadLocalPreset = require('./util/loadLocalPreset')
 const loadRemotePreset = require('./util/loadRemotePreset')
 const generateReadme = require('./util/generateReadme')
@@ -16,7 +16,6 @@ const {
   saveOptions,
   loadOptions,
   savePreset,
-  validatePreset,
   rcPath,
 } = require('./options')
 
@@ -45,8 +44,6 @@ module.exports = class Creator {
     this.outroPrompts = this.resolveOutroPrompts()
     this.injectedPrompts = []
     this.promptCompleteCbs = []
-    this.afterInvokeCbs = []
-    this.afterAnyInvokeCbs = []
 
     const promptAPI = new PromptModuleAPI(this)
     promptModules.forEach((m) => m(promptAPI))
@@ -58,6 +55,7 @@ module.exports = class Creator {
     const preset = await this.promptAndResolvePreset()
 
     // inject core service
+    // cli-service的options保存下preset的所有信息
     preset.plugins['young-cli-service'] = Object.assign(
       {
         projectName: name,
@@ -107,19 +105,22 @@ module.exports = class Creator {
     log(`⚙\u{fe0f}  Installing CLI plugins. This might take a while...`)
     log()
 
-    await pm.install()
+    if(process.env.YOUNG_CLI_DEV) {
+      log('skip installing process in development mode...')
+    } else {
+      await pm.install()
+    }
 
     // run generator
     log(`🚀  Invoking generators...`)
-    const plugins = await this.resolvePlugins(preset.plugins, pkg)
+    const plugins = await this.resolvePlugins(preset.plugins)
     const generator = new Generator(context, {
       pkg,
-      plugins,
-      afterInvokeCbs,
-      afterAnyInvokeCbs,
+      plugins
     })
     await generator.generate({
-      extractConfigFiles: preset.useConfigFiles,
+      // 是否将配置文件抽离（如：babel/eslint等）
+      extractConfigFiles: preset.useConfigFiles
     })
 
     // install additional deps (injected by generators)
@@ -161,8 +162,6 @@ module.exports = class Creator {
         ),
     )
     log()
-
-    generator.printExitLogs()
   }
 
   async promptAndResolvePreset(answers = null) {
@@ -192,9 +191,6 @@ module.exports = class Creator {
       this.promptCompleteCbs.forEach((cb) => cb(answers, preset))
     }
 
-    // validate
-    validatePreset(preset)
-
     // save preset
     if (
       answers.save &&
@@ -218,20 +214,6 @@ module.exports = class Creator {
 
     if (name in savedPresets) {
       preset = savedPresets[name]
-    } else if (
-      name.endsWith('.json') ||
-      /^\./.test(name) ||
-      path.isAbsolute(name)
-    ) {
-      preset = await loadLocalPreset(path.resolve(name))
-    } else if (name.includes('/')) {
-      log(`Fetching remote preset ${chalk.cyan(name)}...`)
-      try {
-        preset = await loadRemotePreset(name, clone)
-      } catch (e) {
-        error(`Failed fetching remote preset ${chalk.cyan(name)}:`)
-        throw e
-      }
     }
 
     if (!preset) {
@@ -250,33 +232,13 @@ module.exports = class Creator {
   }
 
   // { id: options } => [{ id, apply, options }]
-  async resolvePlugins(rawPlugins, pkg) {
+  async resolvePlugins(rawPlugins) {
     // ensure cli-service is invoked first
-    rawPlugins = sortObject(rawPlugins, ['@vue/cli-service'], true)
+    rawPlugins = sortObject(rawPlugins, ['young-cli-service'], true)
     const plugins = []
     for (const id of Object.keys(rawPlugins)) {
       const apply = loadModule(`${id}/generator`, this.context) || (() => {})
       let options = rawPlugins[id] || {}
-
-      if (options.prompts) {
-        let pluginPrompts = loadModule(`${id}/prompts`, this.context)
-
-        if (pluginPrompts) {
-          const prompt = inquirer.createPromptModule()
-
-          if (typeof pluginPrompts === 'function') {
-            pluginPrompts = pluginPrompts(pkg, prompt)
-          }
-          if (typeof pluginPrompts.getPrompts === 'function') {
-            pluginPrompts = pluginPrompts.getPrompts(pkg, prompt)
-          }
-
-          log()
-          log(`${chalk.cyan(options._isPreset ? `Preset options:` : id)}`)
-          options = await prompt(pluginPrompts)
-        }
-      }
-
       plugins.push({ id, apply, options })
     }
     return plugins

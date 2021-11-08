@@ -8,14 +8,20 @@ program.version('0.0.1').usage('<command> [options]')
 program
   .command('create <app-name>')
   .description('create a new project')
-  .action((name) => {
+  .option('-d, --dev', 'developement mode') // 开发环境调试用
+  .action(name => {
+    if (process.argv.includes('-d') || process.argv.includes('--dev')) {
+      process.env.YOUNG_CLI_DEV = true
+    }
     require('../lib/create')(name)
   })
 
 program
   .command('add <plugin-name>')
-  .description('install a plugin and invoke its generator in an already created project')
-  .action((plugin) => {
+  .description(
+    'install a plugin and invoke its generator in an already created project'
+  )
+  .action(plugin => {
     require('../lib/add')(plugin)
   })
 
