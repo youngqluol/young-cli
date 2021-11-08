@@ -4,11 +4,12 @@ const {
   request,
 
   hasYarn
-} = require('@vue/cli-shared-utils')
+} = require('young-common-utils')
 const inquirer = require('inquirer')
 const registries = require('./registries')
 const { loadOptions, saveOptions } = require('../options')
 
+// It's ok to use vue-cli to ping
 async function ping (registry) {
   await request.get(`${registry}/vue-cli-version-marker/latest`)
   return registry
@@ -73,10 +74,6 @@ module.exports = async function shouldUseTaobao (command) {
   if (faster !== registries.taobao) {
     // default is already faster
     return save(false)
-  }
-
-  if (process.env.VUE_CLI_API_MODE) {
-    return save(true)
   }
 
   // ask and save preference

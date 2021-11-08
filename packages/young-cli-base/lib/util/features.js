@@ -1,4 +1,4 @@
-const { chalk, toShortPluginId } = require('@vue/cli-shared-utils')
+const { chalk } = require('young-common-utils')
 
 exports.getFeatures = (preset) => {
   const features = []
@@ -19,11 +19,10 @@ exports.getFeatures = (preset) => {
 }
 
 exports.formatFeatures = (preset) => {
-  const versionInfo = chalk.yellow(`[Vue ${preset.vueVersion || 2}] `)
+  const versionInfo = chalk.yellow(`[Vue 3]`)
   const features = exports.getFeatures(preset)
 
   return versionInfo + features.map(dep => {
-    dep = toShortPluginId(dep)
     return chalk.yellow(dep)
   }).join(', ')
 }

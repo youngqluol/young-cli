@@ -2,7 +2,13 @@ const fs = require('fs-extra')
 const path = require('path')
 const inquirer = require('inquirer')
 const Creator = require('./Creator')
-const { boxenConsole, clearConsole, chalk, error, exit } = require('young-common-utils')
+const {
+  boxenConsole,
+  clearConsole,
+  chalk,
+  error,
+  exit,
+} = require('young-common-utils')
 const { getPromptModules } = require('./util/createTools')
 const validateProjectName = require('validate-npm-package-name')
 
@@ -35,7 +41,7 @@ async function create(projectName) {
         {
           name: 'ok',
           type: 'confirm',
-          message: `Generate project in current directory?`,
+          message: `Generate project in current directory?`
         },
       ])
       if (!ok) {

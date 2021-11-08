@@ -1,8 +1,8 @@
-const { chalk, execa } = require('@vue/cli-shared-utils')
+const { chalk, execa } = require('young-common-utils')
 const EventEmitter = require('events')
 const readline = require('readline')
 
-const debug = require('debug')('vue-cli:install')
+const debug = require('debug')('young-cli:install')
 
 class InstallProgress extends EventEmitter {
   constructor () {
