@@ -1,7 +1,7 @@
 {
   "name": "young-cli-base",
   "version": "0.0.0",
-  "description": "> TODO: description",
+  "description": "a cli tool to create vue project",
   "keywords": [
     "cli"
   ],
@@ -11,7 +11,7 @@
   "author": "yongqing_luo <yongqing_luo@kingdee.com>",
   "homepage": "https://github.com/youngqluol/young-cli#readme",
   "license": "ISC",
-  "main": "lib/young-cli-base.js",
+  "main": "bin/young.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -23,21 +23,27 @@
     "type": "git",
     "url": "git+https://github.com/youngqluol/young-cli.git"
   },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  },
+  "scripts": {},
   "bugs": {
     "url": "https://github.com/youngqluol/young-cli/issues"
   },
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^8.3.0",
+    "debug": "4.1.0",
+    "deepmerge": "^4.2.2",
+    "ejs": "^3.1.6",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.2.0",
+    "javascript-stringify": "^2.1.0",
     "lodash.clonedeep": "^4.5.0",
     "minimist": "^1.2.5",
-    "strip-ansi": "^7.0.1",
+    "pkg-dir": "^6.0.1",
+    "recast": "^0.20.5",
+    "slash": "^4.0.0",
+    "strip-ansi": "6.0.0",
     "validate-npm-package-name": "^3.0.0",
+    "vue-codemod": "^0.0.5",
     "young-common-utils": "^0.0.0"
   }
 }

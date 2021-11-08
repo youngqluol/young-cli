@@ -6,7 +6,7 @@ const stripAnsi = require('strip-ansi')
 const {
   execa,
   semver,
-
+  hasProjectYarn,
   error
 } = require('young-common-utils')
 
@@ -36,9 +36,13 @@ class PackageManager {
     this.context = context || process.cwd()
     this._registries = {}
 
+    // only provide yarn/npm
     if(!forcePackageManager) {
-      error('no package managers specified')
-      exit(1)
+      if(hasProjectYarn(context)) {
+        forcePackageManager = 'yarn'
+      } else {
+        forcePackageManager = 'npm'
+      }
     }
 
     this.bin = forcePackageManager
@@ -102,6 +106,7 @@ class PackageManager {
   async setRegistryEnvs () {
     const registry = await this.getRegistry()
 
+    // 设置依赖源
     process.env.npm_config_registry = registry
     process.env.YARN_NPM_REGISTRY_SERVER = registry
   }

@@ -4,30 +4,9 @@ const GeneratorAPI = require('./GeneratorAPI')
 const PackageManager = require('./util/ProjectPackageManager')
 const sortObject = require('./util/sortObject')
 const writeFileTree = require('./util/writeFileTree')
-const inferRootOptions = require('./util/inferRootOptions')
 const normalizeFilePaths = require('./util/normalizeFilePaths')
 const { runTransformation } = require('vue-codemod')
-const {
-  semver,
-
-  isPlugin,
-  toShortPluginId,
-  matchesPluginId,
-
-  loadModule,
-
-  sortPlugins
-} = require('@vue/cli-shared-utils')
 const ConfigTransform = require('./ConfigTransform')
-
-const logger = require('@vue/cli-shared-utils/lib/logger')
-const logTypes = {
-  log: logger.log,
-  info: logger.info,
-  done: logger.done,
-  warn: logger.warn,
-  error: logger.error
-}
 
 const defaultConfigTransforms = {
   babel: new ConfigTransform({
@@ -49,29 +28,9 @@ const defaultConfigTransforms = {
       yaml: ['.eslintrc.yaml', '.eslintrc.yml']
     }
   }),
-  jest: new ConfigTransform({
-    file: {
-      js: ['jest.config.js']
-    }
-  }),
   browserslist: new ConfigTransform({
     file: {
       lines: ['.browserslistrc']
-    }
-  }),
-  'lint-staged': new ConfigTransform({
-    file: {
-      js: ['lint-staged.config.js'],
-      json: ['.lintstagedrc', '.lintstagedrc.json'],
-      yaml: ['.lintstagedrc.yaml', '.lintstagedrc.yml']
-    }
-  })
-}
-
-const reservedConfigTransforms = {
-  vue: new ConfigTransform({
-    file: {
-      js: ['vue.config.js']
     }
   })
 }
@@ -83,111 +42,40 @@ const ensureEOL = str => {
   return str
 }
 
-/**
- * Collect created/modified files into set
- * @param {Record<string,string|Buffer>} files
- * @param {Set<string>} set
- */
-const watchFiles = (files, set) => {
-  return new Proxy(files, {
-    set (target, key, value, receiver) {
-      set.add(key)
-      return Reflect.set(target, key, value, receiver)
-    },
-    deleteProperty (target, key) {
-      set.delete(key)
-      return Reflect.deleteProperty(target, key)
-    }
-  })
-}
-
 module.exports = class Generator {
   constructor (context, {
     pkg = {},
     plugins = [],
-    afterInvokeCbs = [],
-    afterAnyInvokeCbs = [],
     files = {},
-    invoking = false
   } = {}) {
     this.context = context
-    this.plugins = sortPlugins(plugins)
+    this.plugins = plugins
     this.originalPkg = pkg
     this.pkg = Object.assign({}, pkg)
     this.pm = new PackageManager({ context })
     this.imports = {}
     this.rootOptions = {}
-    this.afterInvokeCbs = afterInvokeCbs
-    this.afterAnyInvokeCbs = afterAnyInvokeCbs
     this.configTransforms = {}
     this.defaultConfigTransforms = defaultConfigTransforms
-    this.reservedConfigTransforms = reservedConfigTransforms
-    this.invoking = invoking
-    // for conflict resolution
-    this.depSources = {}
     // virtual file tree
-    this.files = Object.keys(files).length
-      // when execute `vue add/invoke`, only created/modified files are written to disk
-      ? watchFiles(files, this.filesModifyRecord = new Set())
-      // all files need to be written to disk
-      : files
+    this.files = files
     this.fileMiddlewares = []
-    this.postProcessFilesCbs = []
-    // exit messages
-    this.exitLogs = []
 
-    // load all the other plugins
-    this.allPlugins = this.resolveAllPlugins()
-
-    const cliService = plugins.find(p => p.id === '@vue/cli-service')
-    const rootOptions = cliService
-      ? cliService.options
-      : inferRootOptions(pkg)
+    const cliService = plugins.find(p => p.id === 'young-cli-service')
+    const rootOptions = cliService.options
 
     this.rootOptions = rootOptions
   }
 
   async initPlugins () {
-    const { rootOptions, invoking } = this
-    const pluginIds = this.plugins.map(p => p.id)
+    const { rootOptions } = this
 
-    // avoid modifying the passed afterInvokes, because we want to ignore them from other plugins
-    const passedAfterInvokeCbs = this.afterInvokeCbs
-    this.afterInvokeCbs = []
-    // apply hooks from all plugins to collect 'afterAnyHooks'
-    for (const plugin of this.allPlugins) {
-      const { id, apply } = plugin
-      const api = new GeneratorAPI(id, this, {}, rootOptions)
-
-      if (apply.hooks) {
-        await apply.hooks(api, {}, rootOptions, pluginIds)
-      }
-    }
-
-    // We are doing save/load to make the hook order deterministic
-    // save "any" hooks
-    const afterAnyInvokeCbsFromPlugins = this.afterAnyInvokeCbs
-
-    // reset hooks
-    this.afterInvokeCbs = passedAfterInvokeCbs
-    this.afterAnyInvokeCbs = []
-    this.postProcessFilesCbs = []
-
-    // apply generators from plugins
+    // 依次执行插件的generator
     for (const plugin of this.plugins) {
       const { id, apply, options } = plugin
       const api = new GeneratorAPI(id, this, options, rootOptions)
-      await apply(api, options, rootOptions, invoking)
-
-      if (apply.hooks) {
-        // while we execute the entire `hooks` function,
-        // only the `afterInvoke` hook is respected
-        // because `afterAnyHooks` is already determined by the `allPlugins` loop above
-        await apply.hooks(api, options, rootOptions, pluginIds)
-      }
+      await apply(api, options, rootOptions)
     }
-    // restore "any" hooks
-    this.afterAnyInvokeCbs = afterAnyInvokeCbsFromPlugins
   }
 
   async generate ({
@@ -195,25 +83,21 @@ module.exports = class Generator {
     checkExisting = false
   } = {}) {
     await this.initPlugins()
-
-    // save the file system before applying plugin for comparison
-    const initialFiles = Object.assign({}, this.files)
-    // extract configs from package.json into dedicated files.
+    // 从 package.json 中提取文件
     this.extractConfigFiles(extractConfigFiles, checkExisting)
-    // wait for file resolve
+     // 解析文件内容
     await this.resolveFiles()
-    // set package.json
+     // 将 package.json 中的字段排序
     this.sortPkg()
     this.files['package.json'] = JSON.stringify(this.pkg, null, 2) + '\n'
     // write/update file tree to disk
-    await writeFileTree(this.context, this.files, initialFiles, this.filesModifyRecord)
+    await writeFileTree(this.context, this.files)
   }
 
   extractConfigFiles (extractAll, checkExisting) {
     const configTransforms = Object.assign({},
       defaultConfigTransforms,
-      this.configTransforms,
-      reservedConfigTransforms
+      this.configTransforms
     )
     const extract = key => {
       if (
@@ -240,13 +124,7 @@ module.exports = class Generator {
         extract(key)
       }
     } else {
-      if (!process.env.VUE_CLI_TEST) {
-        // by default, always extract vue.config.js
-        extract('vue')
-      }
-      // always extract babel.config.js as this is the only way to apply
-      // project-wide configuration even to dependencies.
-      // TODO: this can be removed when Babel supports root: true in package.json
+      // always extract babel.config.js
       extract('babel')
     }
   }
@@ -288,20 +166,7 @@ module.exports = class Generator {
       'jest'
     ])
 
-    debug('vue:cli-pkg')(this.pkg)
-  }
-
-  resolveAllPlugins () {
-    const allPlugins = []
-    Object.keys(this.pkg.dependencies || {})
-      .concat(Object.keys(this.pkg.devDependencies || {}))
-      .forEach(id => {
-        if (!isPlugin(id)) return
-        const pluginGenerator = loadModule(`${id}/generator`, this.context)
-        if (!pluginGenerator) return
-        allPlugins.push({ id, apply: pluginGenerator })
-      })
-    return sortPlugins(allPlugins)
+    debug('young:cli-pkg')(this.pkg)
   }
 
   async resolveFiles () {
@@ -337,44 +202,6 @@ module.exports = class Generator {
       }
     })
 
-    for (const postProcess of this.postProcessFilesCbs) {
-      await postProcess(files)
-    }
-    debug('vue:cli-files')(this.files)
-  }
-
-  hasPlugin (id, versionRange) {
-    const pluginExists = [
-      ...this.plugins.map(p => p.id),
-      ...this.allPlugins.map(p => p.id)
-    ].some(pid => matchesPluginId(id, pid))
-
-    if (!pluginExists) {
-      return false
-    }
-
-    if (!versionRange) {
-      return pluginExists
-    }
-
-    return semver.satisfies(
-      this.pm.getInstalledVersion(id),
-      versionRange
-    )
-  }
-
-  printExitLogs () {
-    if (this.exitLogs.length) {
-      this.exitLogs.forEach(({ id, msg, type }) => {
-        const shortId = toShortPluginId(id)
-        const logFn = logTypes[type]
-        if (!logFn) {
-          logger.error(`Invalid api.exitLog type '${type}'.`, shortId)
-        } else {
-          logFn(msg, msg && shortId)
-        }
-      })
-      logger.log()
-    }
+    debug('young:cli-files')(this.files)
   }
 }

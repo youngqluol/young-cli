@@ -1,6 +1,6 @@
 const pkgDir = require('pkg-dir')
 const PackageManager = require('./ProjectPackageManager')
-const { chalk, execa } = require('@vue/cli-shared-utils')
+const { chalk, execa } = require('young-common-utils')
 
 module.exports = async function runNpmScript (task, additonalArgs) {
   const projectRoot = await pkgDir(process.cwd())
