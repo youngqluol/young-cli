@@ -3,7 +3,6 @@ const path = require('path')
 const inquirer = require('inquirer')
 const Creator = require('./Creator')
 const {
-  boxenConsole,
   clearConsole,
   chalk,
   error,
@@ -17,7 +16,6 @@ async function create(projectName) {
   const inCurrent = projectName === '.'
   const name = inCurrent ? path.relative('../', cwd) : projectName
   const targetDir = path.resolve(cwd, projectName || '.')
-  boxenConsole('welcome to use young-cli')
 
   // 校验项目名
   const result = validateProjectName(name)
