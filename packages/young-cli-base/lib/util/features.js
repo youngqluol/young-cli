@@ -1,6 +1,6 @@
 const { chalk } = require('young-common-utils')
 
-exports.getFeatures = (preset) => {
+exports.getFeatures = preset => {
   const features = []
   if (preset.router) {
     features.push('router')
@@ -18,11 +18,26 @@ exports.getFeatures = (preset) => {
   return features
 }
 
-exports.formatFeatures = (preset) => {
+exports.formatFeatures = (preset, name) => {
   const versionInfo = chalk.yellow(`[Vue 3]`)
-  const features = exports.getFeatures(preset)
+  const features =
+    name === 'default'
+      ? [
+          'router4',
+          'vuex4',
+          'eslint',
+          'babel',
+          'husky+lint-staged',
+          'gitHub Actions'
+        ]
+      : exports.getFeatures(preset)
 
-  return versionInfo + features.map(dep => {
-    return chalk.yellow(dep)
-  }).join(', ')
+  return (
+    versionInfo +
+    features
+      .map(dep => {
+        return chalk.yellow(dep)
+      })
+      .join(', ')
+  )
 }

@@ -89,7 +89,7 @@ exports.clearConsole = (title) => {
   }
 }
 
-exports.boxenConsole = (
+exports.createBoxenText = (
   text,
   options = {
     align: 'center',
@@ -99,7 +99,7 @@ exports.boxenConsole = (
     borderStyle: 'double',
   },
 ) => {
-  console.log(require('boxen')(text, options))
+  return require('boxen')(text, options)
 }
 
 // module
@@ -194,8 +194,8 @@ exports.request = {
   },
 }
 
-// spinner
-exports.spinner = require('ora')
+// ora
+exports.ora = require('ora')
 
 // execa
 const execa = (exports.execa = require('execa'))
