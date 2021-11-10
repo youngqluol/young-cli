@@ -1,5 +1,5 @@
 const inquirer = require('inquirer')
-// const Generator = require('./Generator')
+const Generator = require('./Generator')
 const sortObject = require('./util/sortObject')
 const PackageManager = require('./util/ProjectPackageManager')
 const PromptModuleAPI = require('./PromptModuleAPI')
@@ -264,7 +264,7 @@ module.exports = class Creator {
 
   getPresets() {
     const savedOptions = loadOptions()
-    return Object.assign({}, savedOptions.presets, defaults.presets)
+    return Object.assign({}, defaults.presets, savedOptions.presets)
   }
 
   resolveIntroPrompts() {

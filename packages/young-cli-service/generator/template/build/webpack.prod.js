@@ -26,7 +26,10 @@ if (process.env.npm_config_zip) {
       context: __dirname,
       events: {
         onEnd: {
-          archive: [{ source: '../dist', destination: '../dist/dist.zip' }],
+          <%
+            var projectName = rootOptions.projectName || 'project'
+          %>
+          archive: [{ source: '../dist', destination: '../dist/<%= projectName %>.zip' }],
           delete: [
             '../dist/css/',
             '../dist/imgs/',

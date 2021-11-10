@@ -43,7 +43,8 @@ module.exports = {
           'less-loader'
         ]
       },
-      {
+      <%_ if (useBabel) { _%>
+        {
         test: /\.js$/,
         use: [
           {
@@ -52,10 +53,12 @@ module.exports = {
         ],
         exclude: /node_modules/
       },
+      <%_ } _%>
       {
         test: /\.vue$/,
         use: ['vue-loader']
       },
+      <%_ if (useEslint) { _%>
       {
         test: /\.(vue|js)$/,
         enforce: 'pre',
@@ -69,6 +72,7 @@ module.exports = {
         },
         include: [resolve('../src')]
       },
+      <%_ } _%>
       // webpack5+ 用4种模块类型，来替换raw-loader/url-loader/file-loader
       // 参考：https://webpack.docschina.org/guides/asset-modules/
       {
