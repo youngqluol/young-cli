@@ -24,17 +24,7 @@ module.exports = cli => {
         short: 'Basic'
       },
       {
-        name: 'ESLint + Airbnb config',
-        value: 'airbnb',
-        short: 'Airbnb'
-      },
-      {
-        name: 'ESLint + Standard config',
-        value: 'standard',
-        short: 'Standard'
-      },
-      {
-        name: 'ESLint + Prettier',
+        name: 'ESLint + Airbnb config + Prettier',
         value: 'prettier',
         short: 'Prettier'
       }

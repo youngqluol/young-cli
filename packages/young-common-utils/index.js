@@ -214,3 +214,5 @@ exports.semver = require('semver')
 const pluginRE = /young-cli-plugin-/
 
 exports.isPlugin = id => pluginRE.test(id)
+
+exports.toShortPluginId = id => id.replace(pluginRE, '')

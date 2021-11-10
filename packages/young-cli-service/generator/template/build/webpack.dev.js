@@ -1,8 +1,5 @@
 const { merge } = require('webpack-merge');
-// const path = require('path');
 const commonConfig = require('./webpack.config');
-// const { DefinePlugin, HotModuleReplacementPlugin } = require('webpack');
-// const resolve = (p) => path.resolve(__dirname, p);
 
 module.exports = merge(commonConfig, {
   mode: 'development',
@@ -14,14 +11,11 @@ module.exports = merge(commonConfig, {
     open: true,
     client: {
       overlay: false,
-      // progress: true
+      // progress: true // 编译进度
     }
   },
   plugins: [
-    // 从 webpack v4 开始, 指定 mode 会自动地配置 process.env.NODE_ENV
-    // new DefinePlugin({
-    // }),
-    // 在 webpack 5 中 HMR 已自动支持。无需配置
-    // new HotModuleReplacementPlugin()
+    // webpack v4+ 指定 mode 会自动地配置 process.env.NODE_ENV
+    // 在 webpack 5 中 HMR 已自动支持。无需配置HotModuleReplacementPlugin
   ]
 });

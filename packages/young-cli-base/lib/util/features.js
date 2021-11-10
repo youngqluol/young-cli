@@ -1,18 +1,9 @@
-const { chalk } = require('young-common-utils')
+const { chalk, toShortPluginId } = require('young-common-utils')
 
 exports.getFeatures = preset => {
   const features = []
-  if (preset.router) {
-    features.push('router')
-  }
-  if (preset.vuex) {
-    features.push('vuex')
-  }
-  if (preset.cssPreprocessor) {
-    features.push(preset.cssPreprocessor)
-  }
   const plugins = Object.keys(preset.plugins).filter(dep => {
-    return dep !== '@vue/cli-service'
+    return dep !== 'young-cli-service'
   })
   features.push.apply(features, plugins)
   return features
@@ -23,12 +14,10 @@ exports.formatFeatures = (preset, name) => {
   const features =
     name === 'default'
       ? [
-          'router4',
-          'vuex4',
+          'router',
+          'vuex',
           'eslint',
-          'babel',
-          'husky+lint-staged',
-          'gitHub Actions'
+          'babel'
         ]
       : exports.getFeatures(preset)
 
@@ -36,6 +25,7 @@ exports.formatFeatures = (preset, name) => {
     versionInfo +
     features
       .map(dep => {
+        dep = toShortPluginId(dep)
         return chalk.yellow(dep)
       })
       .join(', ')
