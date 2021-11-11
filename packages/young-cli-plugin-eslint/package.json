@@ -28,5 +28,6 @@
   },
   "dependencies": {
     "young-common-utils": "^0.1.0"
-  }
+  },
+  "gitHead": "43905657b7950a5bea9977d28bc12f2e2b97780d"
 }

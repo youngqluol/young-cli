@@ -8,5 +8,8 @@
   "changelog": {
     "repo": "young-cli",
     "cacheDir": ".changelog"
+  },
+  "publishConfig": {
+   "access": "publish"
   }
 }
