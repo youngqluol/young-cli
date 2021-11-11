@@ -4,20 +4,10 @@
   "description": "cli-plugin-babel",
   "author": "lyq <953342912@qq.com>",
   "homepage": "https://github.com/youngqluol/young-cli#readme",
-  "license": "ISC",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/youngqluol/young-cli.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/youngqluol/young-cli/issues"
