@@ -142,7 +142,7 @@ class GeneratorAPI {
 
   // 添加或合并package.json选项
   extendPackage(fields) {
-    const pkg = this.pkg
+    const pkg = this.generator.pkg
     for (const key in fields) {
       const value = fields[key]
       const existing = pkg[key]
