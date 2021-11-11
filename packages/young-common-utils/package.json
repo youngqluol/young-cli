@@ -35,5 +35,6 @@
     "read-pkg": "5.1.1",
     "readline": "^1.3.0",
     "semver": "^7.3.5"
-  }
+  },
+  "gitHead": "43905657b7950a5bea9977d28bc12f2e2b97780d"
 }
