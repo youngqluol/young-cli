@@ -6,10 +6,7 @@ const { isBinaryFileSync } = require('isbinaryfile')
 const { runTransformation } = require('vue-codemod')
 const stringifyJS = require('./util/stringifyJS')
 const ConfigTransform = require('./ConfigTransform')
-const {
-  error,
-  toShortPluginId,
-} = require('young-common-utils')
+const { error, toShortPluginId } = require('young-common-utils')
 
 const isString = val => typeof val === 'string'
 const isObject = val => val && typeof val === 'object'
@@ -97,6 +94,19 @@ class GeneratorAPI {
    */
   hasPlugin(id) {
     return this.generator.hasPlugin(id)
+  }
+
+  /**
+   * Push a callback to be called when the files have been written to disk.
+   *
+   * @param {function} cb
+   */
+  onCreateComplete(cb) {
+    this.afterInvoke(cb)
+  }
+
+  afterInvoke(cb) {
+    this.generator.afterInvokeCbs.push(cb)
   }
 
   /**
@@ -273,7 +283,7 @@ class GeneratorAPI {
       : 'src/main.js')
   }
 }
-// https://segmentfault.com/a/1190000007076507 
+// https://segmentfault.com/a/1190000007076507
 // 获取调用栈信息
 function extractCallDir() {
   // extract api.render() callsite file location using error stack

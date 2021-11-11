@@ -47,6 +47,8 @@ module.exports = class Creator {
     this.injectedPrompts = []
     this.promptCompleteCbs = []
 
+    this.afterInvokeCbs = []
+
     const promptAPI = new PromptModuleAPI(this)
     promptModules.forEach(m => m(promptAPI))
   }
@@ -60,7 +62,8 @@ module.exports = class Creator {
     // cli-service的options保存preset的所有信息，之后在执行generator中作为rootOptions传入
     preset.plugins['young-cli-service'] = Object.assign(
       {
-        projectName: name
+        projectName: name,
+        context
       },
       preset
     )
@@ -136,7 +139,8 @@ module.exports = class Creator {
       const plugins = await this.resolvePlugins(preset.plugins)
       const generator = new Generator(context, {
         pkg,
-        plugins
+        plugins,
+        afterInvokeCbs
       })
       await generator.generate({
         extractConfigFiles: preset.useConfigFiles // 是否将配置文件抽离（如：babel/eslint等）
@@ -146,7 +150,17 @@ module.exports = class Creator {
       log(`📦  Installing additional dependencies...`)
       log()
 
-      await pm.install()
+      if (process.env.YOUNG_CLI_DEV) {
+        log('skip installing process in development mode...')
+      } else {
+        await pm.install()
+      }
+
+      // run complete cbs if any (injected by generators)
+      log(`⚓  Running completion hooks...`)
+      for (const cb of afterInvokeCbs) {
+        await cb()
+      }
 
       if (!generator.files['README.md']) {
         // generate README.md
