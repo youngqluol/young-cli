@@ -200,7 +200,7 @@ exports.ora = require('ora')
 // execa
 const execa = (exports.execa = require('execa'))
 
-exports.runCommand = (command, args, cwd) => {
+exports.runCommand = (command, args, cwd = process.cwd()) => {
   if (!args) {
     const [_command, ..._args] = command.split(/\s+/)
   }

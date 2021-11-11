@@ -1,39 +1,41 @@
+const { runCommand, error } = require('young-common-utils')
+
 module.exports = (api, { config, lintOn = [] }, rootOptions) => {
   const eslintConfig = require('../eslintOptionss')(api, config)
-  const devDependencies = require('../eslintDeps')(api, config).getDeps()
+  const devDependencies = require('../eslintDeps').getDeps(api, config)
 
   const pkg = {
-    scripts: {},
     eslintConfig,
     devDependencies
   }
 
   api.render(`./template`, { usePrettier: config !== 'base' })
 
-  if (typeof lintOn === 'string') {
-    lintOn = lintOn.split(',')
-  }
-
-  if (!lintOn.includes('save')) {
-    pkg.vue = {
-      lintOnSave: false // eslint-loader configured in runtime plugin
-    }
-  }
-
-  if (lintOn.includes('commit')) {
+  if (lintOn) {
     Object.assign(pkg.devDependencies, {
+      husky: '^7.0.0',
       'lint-staged': '^11.1.2'
     })
-    pkg.gitHooks = {
-      'pre-commit': 'lint-staged'
+    pkg.scripts = {
+      precommit: 'lint-staged',
+      prepare: 'husky install'
     }
-    const extensions = require('../eslintOptions')
-      .extensions(api)
-      .map(ext => ext.replace(/^\./, '')) // remove the leading `.`
     pkg['lint-staged'] = {
-      [`*.{${extensions.join(',')}}`]: 'vue-cli-service lint'
+      'src/**/*.{js,json,css,vue}': 'eslint --fix'
     }
   }
 
   api.extendPackage(pkg)
+
+  api.afterAnyInvoke(async () => {
+    try {
+      await runCommand(
+        'npx husky add .husky/pre-commit "npm run precommit"',
+        null,
+        rootOptions.context
+      )
+    } catch (e) {
+      error('npx husky add .husky/pre-commit')
+    }
+  })
 }

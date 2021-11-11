@@ -9,7 +9,6 @@
   "author": "yongqing_luo <yongqing_luo@kingdee.com>",
   "homepage": "https://github.com/youngqluol/young-cli#readme",
   "license": "ISC",
-  "main": "lib/young-cli-plugin-vuex.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"

@@ -57,7 +57,7 @@ exports.config = (api, preset) => {
     }
   }
 
-  if (preset === 'prettier') {
+  if (preset !== 'base') {
     config.extends.push('@vue/airbnb')
   } else {
     // default

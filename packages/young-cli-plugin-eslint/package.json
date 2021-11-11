@@ -9,7 +9,6 @@
   "author": "yongqing_luo <yongqing_luo@kingdee.com>",
   "homepage": "https://github.com/youngqluol/young-cli#readme",
   "license": "ISC",
-  "main": "lib/young-cli-plugin-eslint.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -26,5 +25,8 @@
   },
   "bugs": {
     "url": "https://github.com/youngqluol/young-cli/issues"
+  },
+  "dependencies": {
+    "young-common-utils": "^0.0.0"
   }
 }
