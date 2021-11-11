@@ -1,9 +1,8 @@
-const { chalk } = require('@vue/cli-shared-utils')
 const inquirer = require('inquirer')
 const Generator = require('./Generator')
 const getVersions = require('./util/getVersions')
 const PackageManager = require('./util/ProjectPackageManager')
-const { log, error, loadModule } = require('young-common-utils')
+const { log, error, loadModule, chalk } = require('young-common-utils')
 const readFiles = require('./util/readFiles')
 
 async function add(pluginToAdd, context = process.cwd()) {
@@ -70,8 +69,6 @@ async function add(pluginToAdd, context = process.cwd()) {
 module.exports = (...args) => {
   return add(...args).catch(err => {
     error(err)
-    if (!process.env.VUE_CLI_TEST) {
-      process.exit(1)
-    }
+    process.exit(1)
   })
 }
