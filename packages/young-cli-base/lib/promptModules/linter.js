@@ -27,16 +27,6 @@ module.exports = cli => {
         name: 'ESLint + Airbnb config',
         value: 'airbnb',
         short: 'Airbnb'
-      },
-      {
-        name: 'ESLint + Standard config',
-        value: 'standard',
-        short: 'Standard'
-      },
-      {
-        name: 'ESLint + Prettier',
-        value: 'prettier',
-        short: 'Prettier'
       }
     ]
   })
@@ -45,25 +35,15 @@ module.exports = cli => {
     name: 'lintOn',
     message: 'Pick additional lint features:',
     when: answers => answers.features.includes('linter'),
-    type: 'checkbox',
-    choices: [
-      {
-        name: 'Lint on save',
-        value: 'save',
-        checked: true
-      },
-      {
-        name: 'Lint and fix on commit' + (hasGit() ? '' : chalk.red(' (requires Git)')),
-        value: 'commit'
-      }
-    ]
+    type: 'confirm',
+    message: `use ${chalk.yellow('husky + lint-staged')}?`
   })
 
   cli.onPromptComplete((answers, options) => {
     if (answers.features.includes('linter')) {
       options.plugins['young-cli-plugin-eslint'] = {
-        config: answers.eslintConfig,
-        lintOn: answers.lintOn
+        config: answers.eslintConfig, // String
+        lintOn: answers.lintOn // Boolean
       }
     }
   })
