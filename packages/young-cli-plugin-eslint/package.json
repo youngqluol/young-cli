@@ -1,6 +1,6 @@
 {
   "name": "young-cli-plugin-eslint",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "young-cli eslint plugin",
   "keywords": [
     "young-cli",
@@ -27,6 +27,6 @@
     "url": "https://github.com/youngqluol/young-cli/issues"
   },
   "dependencies": {
-    "young-common-utils": "^0.0.0"
+    "young-common-utils": "^0.1.0"
   }
 }

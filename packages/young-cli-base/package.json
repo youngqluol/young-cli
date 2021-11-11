@@ -1,6 +1,6 @@
 {
   "name": "young-cli-base",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "a cli tool to create vue project",
   "keywords": [
     "cli"
@@ -47,6 +47,6 @@
     "strip-ansi": "6.0.0",
     "validate-npm-package-name": "^3.0.0",
     "vue-codemod": "^0.0.5",
-    "young-common-utils": "^0.0.0"
+    "young-common-utils": "^0.1.0"
   }
 }
