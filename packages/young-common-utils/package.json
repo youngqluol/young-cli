@@ -1,6 +1,6 @@
 {
   "name": "young-common-utils",
-  "version": "0.0.0",
+  "version": "1.0.2",
   "description": "utils",
   "keywords": [
     "young",
@@ -8,21 +8,10 @@
   ],
   "author": "yongqing_luo <yongqing_luo@kingdee.com>",
   "homepage": "https://github.com/youngqluol/young-cli#readme",
-  "license": "ISC",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/youngqluol/young-cli.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/youngqluol/young-cli/issues"
@@ -36,5 +25,6 @@
     "read-pkg": "5.1.1",
     "readline": "^1.3.0",
     "semver": "^7.3.5"
-  }
+  },
+  "gitHead": "7fa813b3914801ce1c9cd5b47c7fa68ba76a8103"
 }

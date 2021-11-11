@@ -7,6 +7,7 @@ const writeFileTree = require('./util/writeFileTree')
 const normalizeFilePaths = require('./util/normalizeFilePaths')
 const { runTransformation } = require('vue-codemod')
 const ConfigTransform = require('./ConfigTransform')
+const { toShortPluginId } = require('young-common-utils')
 
 const defaultConfigTransforms = {
   babel: new ConfigTransform({
@@ -46,6 +47,7 @@ module.exports = class Generator {
   constructor (context, {
     pkg = {},
     plugins = [],
+    afterInvokeCbs = [],
     files = {},
   } = {}) {
     this.context = context
@@ -60,6 +62,7 @@ module.exports = class Generator {
     // virtual file tree
     this.files = files
     this.fileMiddlewares = []
+    this.afterInvokeCbs = afterInvokeCbs
 
     const cliService = plugins.find(p => p.id === 'young-cli-service')
     const rootOptions = cliService.options
@@ -203,5 +206,10 @@ module.exports = class Generator {
     })
 
     debug('young:cli-files')(this.files)
+  }
+
+  hasPlugin(id) {
+    const ids = this.plugins.map(p => toShortPluginId(p.id))
+    return ids.includes(id)
   }
 }

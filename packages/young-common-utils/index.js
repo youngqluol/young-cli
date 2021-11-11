@@ -89,7 +89,7 @@ exports.clearConsole = (title) => {
   }
 }
 
-exports.boxenConsole = (
+exports.createBoxenText = (
   text,
   options = {
     align: 'center',
@@ -99,7 +99,7 @@ exports.boxenConsole = (
     borderStyle: 'double',
   },
 ) => {
-  console.log(require('boxen')(text, options))
+  return require('boxen')(text, options)
 }
 
 // module
@@ -194,13 +194,13 @@ exports.request = {
   },
 }
 
-// spinner
-exports.spinner = require('ora')
+// ora
+exports.ora = require('ora')
 
 // execa
 const execa = (exports.execa = require('execa'))
 
-exports.runCommand = (command, args, cwd) => {
+exports.runCommand = (command, args, cwd = process.cwd()) => {
   if (!args) {
     const [_command, ..._args] = command.split(/\s+/)
   }
@@ -214,3 +214,5 @@ exports.semver = require('semver')
 const pluginRE = /young-cli-plugin-/
 
 exports.isPlugin = id => pluginRE.test(id)
+
+exports.toShortPluginId = id => id.replace(pluginRE, '')

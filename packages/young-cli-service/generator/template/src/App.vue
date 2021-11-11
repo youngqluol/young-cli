@@ -1,19 +1,20 @@
 <template>
   <div class="app-page">
-    <router-view></router-view>
+    <HelloWorld />
   </div>
 </template>
-<script>
-import { useRoute, useRouter } from 'vue-router';
 
+<script>
+import HelloWorld from '@/components/HelloWorld'
 export default {
+  components: {
+    HelloWorld
+  },
   setup() {
-    // console.log('route', useRoute());
-    // const router = useRouter();
-    // router.push({ name: 'home' });
   }
 };
 </script>
+
 <style lang="less" scoped>
   .app-page {
     font-size: 0.3rem;
