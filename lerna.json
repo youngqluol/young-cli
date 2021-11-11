@@ -10,6 +10,7 @@
     "cacheDir": ".changelog"
   },
   "publishConfig": {
-    "access": "publish"
+    "access": "publish",
+    "registry": " https://registry.npmjs.org/"
   }
 }

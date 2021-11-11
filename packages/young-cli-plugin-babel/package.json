@@ -12,9 +12,6 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "registry": "https://registry.npm.taobao.org/"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/youngqluol/young-cli.git"
@@ -25,5 +22,5 @@
   "bugs": {
     "url": "https://github.com/youngqluol/young-cli/issues"
   },
-  "gitHead": "674edee6bdf5dd650082a5c51b0127350d6b2cf6"
+  "gitHead": "7fa813b3914801ce1c9cd5b47c7fa68ba76a8103"
 }
