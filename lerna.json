@@ -4,12 +4,12 @@
   "packages": [
     "packages/*"
   ],
-  "version": "0.1.0",
+  "version": "1.0.0",
   "changelog": {
     "repo": "young-cli",
     "cacheDir": ".changelog"
   },
   "publishConfig": {
-   "access": "publish"
+    "access": "publish"
   }
 }
