@@ -54,7 +54,7 @@ module.exports = class Creator {
   }
 
   async create() {
-    const { name, context } = this
+    const { name, context, afterInvokeCbs } = this
 
     const preset = await this.promptAndResolvePreset()
 
@@ -76,6 +76,14 @@ module.exports = class Creator {
       forcePackageManager: packageManager
     })
 
+    const pkg = {
+      name,
+      version: '0.1.0',
+      private: true,
+      devDependencies: {},
+      ...resolvePkg(context)
+    }
+
     log(`✨  Creating project in ${chalk.yellow(context)}`)
 
     // if choosed to use default, pull the template from github directly
@@ -92,13 +100,6 @@ module.exports = class Creator {
       const { latestMinor } = await getVersions()
 
       // generate package.json with plugin dependencies
-      const pkg = {
-        name,
-        version: '0.1.0',
-        private: true,
-        devDependencies: {},
-        ...resolvePkg(context)
-      }
       const deps = Object.keys(preset.plugins)
       deps.forEach(dep => {
         let { version } = preset.plugins[dep]
