@@ -1,6 +1,6 @@
 const { runCommand, error } = require('young-common-utils')
 
-module.exports = (api, { config, lintOn = [] }, rootOptions) => {
+module.exports = (api, { config, lintOn = false }, rootOptions) => {
   const eslintConfig = require('../eslintOptionss')(api, config)
   const devDependencies = require('../eslintDeps').getDeps(api, config)
 

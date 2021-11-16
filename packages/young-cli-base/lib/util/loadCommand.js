@@ -1,4 +1,4 @@
-const { chalk } = require('@vue/cli-shared-utils')
+const { chalk } = require('young-common-utils')
 const getGlobalInstallCommand = require('./getGlobalInstallCommand')
 
 module.exports = function loadCommand (commandName, moduleName) {
