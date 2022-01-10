@@ -1,5 +1,5 @@
 # young-cli
-A cli tool to easily create vue project using webpack5 to build.
+A cli tool to quickly create vue project using webpack5 to build.
 
 
 ## 一、feature
